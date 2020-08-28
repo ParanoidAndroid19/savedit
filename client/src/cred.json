@@ -1,0 +1,8 @@
+{
+  "userAgent": "Savedit by u/ParanoidAndroid10101",
+  "clientId": "emBhpiG5YkFK9g",
+  "clientSecret": "nKAvbCUe5ZVaSVAcPPfkkiAsKKs",
+  "redirectUrl": "http://localhost:3000/auth",
+  "apiUrl" : "http://localhost:5000",
+  "scopes": "identity%20history%20mysubreddits%20read%20save"
+}
