@@ -1,4 +1,0 @@
-server/node_modules/
-client/node_modules/
-client/src/cred.json
-server/cred.json
