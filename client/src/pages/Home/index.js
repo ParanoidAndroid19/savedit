@@ -4,13 +4,18 @@ import cred from '../../cred.json'
 
 export default function HomePage() {
   let history = useHistory();
+  var userLS;
 
   console.log(cred.redirectUrl)
 
   if(localStorage.getItem('user')){
+    userLS = JSON.parse(localStorage.getItem('user'))
+  }
+
+  if(userLS.redditName){
     return (
       <div style={{ textAlign: 'center', margin: 'auto', marginTop: '35vh' }} >
-        <p>Home!</p>
+        <p>Welcome Home, {userLS.redditName}!</p>
       </div>
     );
   }
