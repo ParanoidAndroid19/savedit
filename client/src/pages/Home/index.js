@@ -10,6 +10,9 @@ import InputBase from '@material-ui/core/InputBase';
 import SearchIcon from '@material-ui/icons/Search';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import Paper from '@material-ui/core/Paper';
 import styled from "styled-components";
 import cred from '../../cred.json'
 import Content from "../../components/Content"
@@ -30,17 +33,20 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up('sm')]: {
       display: 'block',
     },
+    color: "black",
+    paddingTop: "3px"
   },
   search: {
     position: 'relative',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: fade(theme.palette.common.white, 0.15),
+    borderRadius: "10px",
+    backgroundColor: fade("#e8e8e8", 0.8),
     '&:hover': {
-      backgroundColor: fade(theme.palette.common.white, 0.25),
+      backgroundColor: fade("#f1f1f1", 0.8),
     },
     marginRight: theme.spacing(2),
     marginLeft: '20px',
     width: '50%',
+    color: "black"
   },
   searchIcon: {
     padding: theme.spacing(0, 2),
@@ -55,8 +61,10 @@ const useStyles = makeStyles((theme) => ({
     color: 'inherit',
   },
   inputInput: {
-    padding: theme.spacing(1, 1, 1, 0),
+    // top right bottom left
+    padding: theme.spacing(1.4, 1, 1.4, 0),
     // vertical padding + font size from searchIcon
+    fontSize: "18px",
     paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
     transition: theme.transitions.create('width'),
     width: '100%',
@@ -69,14 +77,56 @@ const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.up('md')]: {
       display: 'flex',
     },
+    color: "black",
+    paddingTop: "3px"
+  },
+  dropdown: {
+    display: 'inline-block',
+    margin: '0 32px 16px 0',
+    width: '100%'
+  },
+  dropdownItem: {
+    display: 'inline',
+    float: 'left',
+    width: '25%'
   }
 }));
 
 const StyledToggleButton = styled(ToggleButton)`
   && {
-    color: white;
-    border-color: white;
+    font-color: #cccccc;
+    border-color: #cccccc;
     padding: 5px;
+  }
+`;
+
+const SubToggleButton = styled(ToggleButton)`
+  && {
+    margin-right: 15px;
+    text-transform: none;
+    border-style: solid;
+    border-color: #d9d9d9;
+    border-radius: 5px;
+  }
+`;
+
+const StyledAppBar = styled(AppBar)`
+  && {
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-color: #d9d9d9;
+  }
+`;
+
+const FilterAppBar = styled(AppBar)`
+  && {
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-color: #d9d9d9;
+    display: inline-block;
+    overflow: auto;
+    padding-top: 5px;
+    padding-bottom: 5px;
   }
 `;
 
@@ -87,6 +137,7 @@ export default function HomePage() {
   var userLS;
   const [input, setinput] = useState("")
   const [filter, setFilter] = useState(null);
+  const [subs, setSubs] = useState([]);
 
   if(localStorage.getItem('user')){
     userLS = JSON.parse(localStorage.getItem('user'))
@@ -94,22 +145,64 @@ export default function HomePage() {
 
   function renderContent() {
     if(input===""){
-      return(
-        userLS.savedContent.map((content) => (
-            <Content key={content.id} props={content}></Content>
+      if(filter === null){
+        return(
+          userLS.savedContent.map((content) => (
+              <Content key={content.id} props={content}></Content>
           ))
-      )
+        )
+      }
+      else if(filter === "posts"){
+        return(
+          userLS.savedContent.map((content) => (
+              content.title
+              ? <Content key={content.id} props={content}></Content>
+              : null
+          ))
+        )
+      }
+      else{
+        return(
+          userLS.savedContent.map((content) => (
+              content.link_title
+              ? <Content key={content.id} props={content}></Content>
+              : null
+          ))
+        )
+      }
     }
     else{
-      return(
-        userLS.savedContent.map((content) => (
-          content.title
-          ? ((content.title.toLowerCase().includes(input) || content.selftext.toLowerCase().includes(input) || content.subreddit.toLowerCase().includes(input))
-            ? <Content key={content.id} props={content}></Content> : null)
-          : ((content.link_title.toLowerCase().includes(input) || content.body.toLowerCase().includes(input) || content.subreddit.toLowerCase().includes(input))
-            ? <Content key={content.id} props={content}></Content> : null)
-        ))
-      )
+      if(filter===null){
+        return(
+          userLS.savedContent.map((content) => (
+            content.title
+            ? (( input.some(v => content.title.toLowerCase().includes(v)) || input.some(v => content.selftext.toLowerCase().includes(v)) || input.some(v => content.subreddit.toLowerCase().includes(v)) )
+              ? <Content key={content.id} props={content}></Content> : null)
+            : (( input.some(v => content.link_title.toLowerCase().includes(v)) || input.some(v => content.body.toLowerCase().includes(v)) || input.some(v => content.subreddit.toLowerCase().includes(v)) )
+              ? <Content key={content.id} props={content}></Content> : null)
+          ))
+        )
+      }
+      else if(filter === "posts"){
+        return(
+          userLS.savedContent.map((content) => (
+            content.title
+            ? (( input.some(v => content.title.toLowerCase().includes(v)) || input.some(v => content.selftext.toLowerCase().includes(v)) || input.some(v => content.subreddit.toLowerCase().includes(v)) )
+              ? <Content key={content.id} props={content}></Content> : null)
+            : null
+          ))
+        )
+      }
+      else{
+        return(
+          userLS.savedContent.map((content) => (
+            content.link_title
+            ? (( input.some(v => content.link_title.toLowerCase().includes(v)) || input.some(v => content.body.toLowerCase().includes(v)) || input.some(v => content.subreddit.toLowerCase().includes(v)) )
+              ? <Content key={content.id} props={content}></Content> : null)
+            : null
+          ))
+        )
+      }
     }
   }
 
@@ -117,13 +210,41 @@ export default function HomePage() {
     setFilter(newFilter);
   };
 
-  console.log(filter)
+  const handleSubs = (event, newSubs) => {
+    setSubs(newSubs);
+  };
+
+  console.log(subs)
+
+  function handleInput(e){
+    var arrKeywords = e.target.value.toLowerCase().split(/[ ,]+/)
+    var keywords = arrKeywords.filter(function (el) {
+      return (el !== "" && el !== null);
+    });
+
+    if(keywords.length === 0){
+      setinput("")
+    }
+    else{
+      setinput(keywords)
+    }
+  }
+
+  // console.log(input)
+
+  var subredditsList = [];
+  var myset = new Set();
 
   if(userLS.redditName){
+
+    userLS.savedContent.map((content) => (
+        myset.add(content.subreddit)
+    ))
+
     return (
       <div>
       <div className={classes.grow}>
-        <AppBar position="static" style={{ boxShadow: 'none', background: '#808080'}}>
+        <StyledAppBar position="static" style={{ boxShadow: 'none', background: 'white'}}>
           <Toolbar>
             <Typography className={classes.title} variant="h6" noWrap>
               Savedit
@@ -139,7 +260,7 @@ export default function HomePage() {
                   input: classes.inputInput,
                 }}
                 inputProps={{ 'aria-label': 'search' }}
-                onChange={ (e) => setinput(e.target.value.toLowerCase()) }
+                onChange={handleInput}
               />
             </div>
             <ToggleButtonGroup
@@ -148,15 +269,34 @@ export default function HomePage() {
               onChange={handleFilter}
               aria-label="text alignment"
             >
-              <StyledToggleButton value="post">Post</StyledToggleButton>
-              <StyledToggleButton value="comment">Comment</StyledToggleButton>
+              <StyledToggleButton value="posts">Posts</StyledToggleButton>
+              <StyledToggleButton value="comments">Comments</StyledToggleButton>
             </ToggleButtonGroup>
+
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>
               <p>{userLS.redditName}</p>
             </div>
           </Toolbar>
-        </AppBar>
+        </StyledAppBar>
+      </div>
+
+      <div className={classes.grow}>
+        <FilterAppBar position="static" style={{ boxShadow: 'none', background: 'white'}}>
+          <Toolbar>
+            <ToggleButtonGroup
+              value={subs}
+              onChange={handleSubs}
+              aria-label="text formatting"
+            >
+             {
+               [...myset].map((sub) => (
+                  <SubToggleButton key={sub} value={sub}>{sub}</SubToggleButton>
+               ))
+             }
+            </ToggleButtonGroup>
+          </Toolbar>
+        </FilterAppBar>
       </div>
 
       <Container maxWidth="lg" className={classes.container}>
@@ -164,7 +304,6 @@ export default function HomePage() {
           {renderContent()}
         </div>
       </Container>
-
       </div>
     );
   }
