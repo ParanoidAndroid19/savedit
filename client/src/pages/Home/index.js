@@ -20,6 +20,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Paper from '@material-ui/core/Paper';
 import styled from "styled-components";
 import cred from '../../cred.json'
+import userData from '../saved.js'
 import Content from "../../components/Content"
 import './index.css';
 import Masonry from 'react-masonry-css'
@@ -119,6 +120,8 @@ export default function HomePage() {
   const [filter, setFilter] = useState(null);
   const [subs, setSubs] = useState([]);
   const [drop, setDrop] = useState(false);
+
+  console.log(userData.savedContent[0])
 
   var modeL = JSON.parse(localStorage.getItem('mode'))
 
@@ -294,6 +297,7 @@ export default function HomePage() {
   var subredditsList = [];
   var myset = new Set();
 
+  if(localStorage.getItem('user')){
   if(userLS.redditName){
 
     userLS.savedContent.map((content) => (
@@ -402,6 +406,7 @@ export default function HomePage() {
       </div>
       </MuiThemeProvider>
     );
+  }
   }
 
   else{

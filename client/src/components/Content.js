@@ -146,14 +146,22 @@ const Content = ({
           <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
             <p className={classes.sub}>r/{subreddit}</p>
             <p className={classes.title}>{link_title}</p>
-            <p style={{borderLeftStyle: 'dotted', borderColor: '#737373', borderWidth: '3px',paddingLeft: '10px', marginLeft: '3px'}}>
+            <p style={{borderLeftStyle: 'dotted', borderColor: '#737373',
+            borderWidth: '3px',paddingLeft: '10px', marginLeft: '3px'}}>
             {body.slice(0,230)}...</p>
           </a>
         </div>
       )
   }
   else if (thumbnail === "self") {
-       return <div>no thumbnail</div>
+       return (
+         <div className={classes.card}>
+          <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
+            <p className={classes.sub}>r/{subreddit}</p>
+            <p className={classes.title}>{title}</p>
+          </a>
+         </div>
+       )
   }
   else {
       return <div>{body}</div>

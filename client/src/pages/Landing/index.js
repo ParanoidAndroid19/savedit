@@ -15,12 +15,15 @@ export default function Login() {
       "&duration=temporary&scope=identity history save"
 
   if(localStorage.getItem('user')){
-    return (
-      <div style={{ textAlign: 'center', margin: 'auto', marginTop: '35vh' }}>
-        <h5>Redirecting to Home</h5>
-        {history.push(`/home`)}
-      </div>
-    )
+    var userLS = JSON.parse(localStorage.getItem('user'))
+    if(userLS.redditName){
+      return (
+        <div style={{ textAlign: 'center', margin: 'auto', marginTop: '35vh' }}>
+          <h5>Redirecting to Home</h5>
+          {history.push(`/home`)}
+        </div>
+      )
+    }
   }
 
   else{
