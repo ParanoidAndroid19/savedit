@@ -15,7 +15,6 @@ export default function Login(props) {
   const code = queryString.parse(props.location.search).code
   const randomString = queryString.parse(props.location.search).state
 
-
   // for getting the access token
   useEffect(() => {
       if (randomString === "RANDOM_STRING" && code && !redditAccessToken && !localStorage.getItem('user')) {
@@ -48,10 +47,28 @@ export default function Login(props) {
         console.log('Getting saved content?')
         axios.post(apiurl + "/reddit/getSavedContent", { accessToken: userLS.accessToken }, { "Content-Type": "application/json" })
           .then((res) => {
-            console.log('Whereee?')
             console.log(res)
+
+            var request = indexedDB.open("Adb", 1);
+            const userData = [{ key: "user", savedContent: res.data.savedContent }];
+            console.log(userData)
+            // write data
+            request.onupgradeneeded = function (event) {
+              var db = event.target.result;
+              var objectStore = db.createObjectStore("saved", { keyPath: "key" });
+              objectStore.transaction.oncomplete = function (event) {
+                // Store values in the newly created objectStore.
+                var customerObjectStore = db
+                  .transaction("saved", "readwrite")
+                  .objectStore("saved");
+                userData.forEach(function (user) {
+                  customerObjectStore.add(user);
+                });
+              };
+            };
+
             userLS['redditName'] = res.data.redditName
-            userLS['savedContent'] = res.data.savedContent
+            // userLS['savedContent'] = res.data.savedContent
             localStorage.setItem('user', JSON.stringify(userLS))
             setLoginSuccess(true)
           })

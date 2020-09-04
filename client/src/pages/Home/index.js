@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom'
 import { makeStyles, useTheme, fade, MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -20,7 +20,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 import Paper from '@material-ui/core/Paper';
 import styled from "styled-components";
 import cred from '../../cred.json'
-import userData from '../saved.js'
 import Content from "../../components/Content"
 import './index.css';
 import Masonry from 'react-masonry-css'
@@ -120,8 +119,28 @@ export default function HomePage() {
   const [filter, setFilter] = useState(null);
   const [subs, setSubs] = useState([]);
   const [drop, setDrop] = useState(false);
+  const [go, setGo] = useState(false);
+  const [dataList, setDataList] = useState(null)
+  // var dataList;
 
-  console.log(userData.savedContent[0])
+  useEffect(() => {
+    var request = indexedDB.open("Adb", 1);
+
+    request.onerror = function (event) {
+      console.log("Why didn't you allow my web app to use IndexedDB?!");
+    };
+
+    request.onsuccess = function (event) {
+      console.log("success");
+      var db = event.target.result;
+      db.transaction("saved").objectStore("saved").get("user").onsuccess = function (event) {
+        // console.log(event.target.result);
+        setDataList(event.target.result)
+        // console.log(dataList.savedContent);
+        setGo(true)
+      };
+    };
+  }, [])
 
   var modeL = JSON.parse(localStorage.getItem('mode'))
 
@@ -165,8 +184,6 @@ export default function HomePage() {
     setDarkState(modeL.dark);
   }
 
-  console.log(darkTheme)
-
   if(localStorage.getItem('user')){
     userLS = JSON.parse(localStorage.getItem('user'))
   }
@@ -176,14 +193,14 @@ export default function HomePage() {
       if(filter === null){
         if(subs.length === 0){
           return(
-            userLS.savedContent.map((content) => (
+            dataList.savedContent.map((content) => (
                 <Content key={content.id} props={content}></Content>
             ))
           )
         }
         else{
           return(
-            userLS.savedContent.map((content) => (
+            dataList.savedContent.map((content) => (
                 subs.includes(content.subreddit.toLowerCase())
                 ? <Content key={content.id} props={content}></Content>
                 : null
@@ -194,7 +211,7 @@ export default function HomePage() {
       else if(filter === "posts"){
         if(subs.length === 0){
           return(
-            userLS.savedContent.map((content) => (
+            dataList.savedContent.map((content) => (
                 content.title
                 ? <Content key={content.id} props={content}></Content>
                 : null
@@ -203,7 +220,7 @@ export default function HomePage() {
         }
         else{
           return(
-            userLS.savedContent.map((content) => (
+            dataList.savedContent.map((content) => (
                 content.title
                 ? (subs.includes(content.subreddit.toLowerCase()) ? <Content key={content.id} props={content}></Content> : null)
                 : null
@@ -214,7 +231,7 @@ export default function HomePage() {
       else{
         if(subs.length === 0){
           return(
-            userLS.savedContent.map((content) => (
+            dataList.savedContent.map((content) => (
                 content.link_title
                 ? <Content key={content.id} props={content}></Content>
                 : null
@@ -223,7 +240,7 @@ export default function HomePage() {
         }
         else{
           return(
-            userLS.savedContent.map((content) => (
+            dataList.savedContent.map((content) => (
                 content.link_title
                 ? (subs.includes(content.subreddit.toLowerCase()) ? <Content key={content.id} props={content}></Content> : null)
                 : null
@@ -236,7 +253,7 @@ export default function HomePage() {
     else{
       if(filter===null){
         return(
-          userLS.savedContent.map((content) => (
+          dataList.savedContent.map((content) => (
             content.title
             ? (( input.some(v => content.title.toLowerCase().includes(v)) || input.some(v => content.selftext.toLowerCase().includes(v)) || input.some(v => content.subreddit.toLowerCase().includes(v)) )
               ? <Content key={content.id} props={content}></Content> : null)
@@ -247,7 +264,7 @@ export default function HomePage() {
       }
       else if(filter === "posts"){
         return(
-          userLS.savedContent.map((content) => (
+          dataList.savedContent.map((content) => (
             content.title
             ? (( input.some(v => content.title.toLowerCase().includes(v)) || input.some(v => content.selftext.toLowerCase().includes(v)) || input.some(v => content.subreddit.toLowerCase().includes(v)) )
               ? <Content key={content.id} props={content}></Content> : null)
@@ -257,7 +274,7 @@ export default function HomePage() {
       }
       else{
         return(
-          userLS.savedContent.map((content) => (
+          dataList.savedContent.map((content) => (
             content.link_title
             ? (( input.some(v => content.link_title.toLowerCase().includes(v)) || input.some(v => content.body.toLowerCase().includes(v)) || input.some(v => content.subreddit.toLowerCase().includes(v)) )
               ? <Content key={content.id} props={content}></Content> : null)
@@ -298,121 +315,131 @@ export default function HomePage() {
   var myset = new Set();
 
   if(localStorage.getItem('user')){
-  if(userLS.redditName){
+    if(userLS.redditName){
+      if(go===true){
+        // console.log(dataList)
 
-    userLS.savedContent.map((content) => (
-        myset.add(content.subreddit)
-    ))
+        dataList.savedContent.map((content) => (
+            myset.add(content.subreddit)
+        ))
 
-    return (
-      <MuiThemeProvider theme={darkTheme}>
-        <CssBaseline />
-      <div style={{backgroundColor: darkState ? 'black' : '#DAE0E6', minHeight: '100vh'}}>
-      <div className={classes.grow}>
-        <StyledAppBar position="static" style={{ boxShadow: 'none',
-          background: darkState ? '#1A1A1B' : 'white', borderColor: darkState ? '#343536' : '#d9d9d9'}}>
-          <Toolbar style={{paddingLeft: '18px'}}>
-            <Typography className={classes.title} variant="h5" noWrap style={{color: darkState ? '#C0C0C0' : 'black'}}>
-              Savedit
-            </Typography>
+        return (
+          <MuiThemeProvider theme={darkTheme}>
+            <CssBaseline />
+          <div style={{backgroundColor: darkState ? 'black' : '#DAE0E6', minHeight: '100vh'}}>
+          <div className={classes.grow}>
+            <StyledAppBar position="static" style={{ boxShadow: 'none',
+              background: darkState ? '#1A1A1B' : 'white', borderColor: darkState ? '#343536' : '#d9d9d9'}}>
+              <Toolbar style={{paddingLeft: '18px'}}>
+                <Typography className={classes.title} variant="h5" noWrap style={{color: darkState ? '#C0C0C0' : 'black'}}>
+                  Savedit
+                </Typography>
 
-            <div className={classes.search} style={{backgroundColor: darkState ? '#343536' : '#e8e8e8'}}>
-              <div className={classes.searchIcon}>
-                <SearchIcon />
-              </div>
-              <InputBase
-                placeholder="Search…"
-                classes={{
-                  input: classes.inputInput,
-                }}
-                inputProps={{ 'aria-label': 'search' }}
-                onChange={handleInput}
-                style={{color: darkState ? 'white' : 'inherit',}}
-              />
-            </div>
+                <div className={classes.search} style={{backgroundColor: darkState ? '#343536' : '#e8e8e8'}}>
+                  <div className={classes.searchIcon}>
+                    <SearchIcon />
+                  </div>
+                  <InputBase
+                    placeholder="Search…"
+                    classes={{
+                      input: classes.inputInput,
+                    }}
+                    inputProps={{ 'aria-label': 'search' }}
+                    onChange={handleInput}
+                    style={{color: darkState ? 'white' : 'inherit',}}
+                  />
+                </div>
 
-            <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Filter by subreddits</p>} arrow>
-              <IconButton onClick={ () => {setDrop(!drop)} } style={{color: '#cccccc', padding: 0, marginRight: '8px'}}>
-                {
-                  drop
-                  ? <ExpandLessIcon fontSize="large"/>
-                  : <ExpandMoreIcon fontSize="large"/>
-                }
-              </IconButton>
-            </Tooltip>
+                <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Filter by subreddits</p>} arrow>
+                  <IconButton onClick={ () => {setDrop(!drop)} } style={{color: '#cccccc', padding: 0, marginRight: '8px'}}>
+                    {
+                      drop
+                      ? <ExpandLessIcon fontSize="large"/>
+                      : <ExpandMoreIcon fontSize="large"/>
+                    }
+                  </IconButton>
+                </Tooltip>
 
-            <ToggleButtonGroup
-              value={filter}
-              exclusive
-              onChange={handleFilter}
-              aria-label="text alignment"
-            >
-              <ToggleButton value="posts"
-              style={{color: '#A9A9A9', padding: '5px', borderColor: darkState ? '#343536' : '#cccccc'}}
-              >Posts</ToggleButton>
+                <ToggleButtonGroup
+                  value={filter}
+                  exclusive
+                  onChange={handleFilter}
+                  aria-label="text alignment"
+                >
+                  <ToggleButton value="posts"
+                  style={{color: '#A9A9A9', padding: '5px', borderColor: darkState ? '#343536' : '#cccccc'}}
+                  >Posts</ToggleButton>
 
-              <ToggleButton value="comments"
-              style={{color: '#A9A9A9', padding: '5px', borderColor: darkState ? '#343536' : '#cccccc'}}
-              >Comments</ToggleButton>
-            </ToggleButtonGroup>
+                  <ToggleButton value="comments"
+                  style={{color: '#A9A9A9', padding: '5px', borderColor: darkState ? '#343536' : '#cccccc'}}
+                  >Comments</ToggleButton>
+                </ToggleButtonGroup>
 
-            <div className={classes.grow} />
-            <div className={classes.sectionDesktop}>
-              <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Toggle light/dark theme</p>} arrow>
-                <IconButton onClick={handleThemeChange} style={{ marginRight: '10px' }}>
-                  {darkState
-                    ? <Brightness7Icon />
-                    : <Brightness4Icon />
-                  }
-                </IconButton>
-              </Tooltip>
-              <p style={{color: darkState ? '#C0C0C0' : 'black'}}>{userLS.redditName}</p>
-            </div>
-          </Toolbar>
-        </StyledAppBar>
-      </div>
-
-      <Collapse in={drop}>
-        <div className={classes.grow}>
-          <FilterAppBar position="static" style={{ boxShadow: 'none', background: darkState ? '#1A1A1B' : 'white'}}>
-            <Toolbar>
-              <ToggleButtonGroup
-                value={subs}
-                onChange={handleSubs}
-                aria-label="text formatting"
-              >
-               {
-                 [...myset].map((sub) => (
-                    <ToggleButton
-                      key={sub} value={sub.toLowerCase()}
-                      style={{marginRight: '15px', textTransform: 'none', color: '#A9A9A9' ,borderStyle: 'solid', borderRadius: '5px', borderColor: darkState ? '#343536' : '#cccccc'}}
-                    >{sub}</ToggleButton>
-                 ))
-               }
-              </ToggleButtonGroup>
-            </Toolbar>
-          </FilterAppBar>
+                <div className={classes.grow} />
+                <div className={classes.sectionDesktop}>
+                  <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Toggle light/dark theme</p>} arrow>
+                    <IconButton onClick={handleThemeChange} style={{ marginRight: '10px' }}>
+                      {darkState
+                        ? <Brightness7Icon />
+                        : <Brightness4Icon />
+                      }
+                    </IconButton>
+                  </Tooltip>
+                  <p style={{color: darkState ? '#C0C0C0' : 'black'}}>{userLS.redditName}</p>
+                </div>
+              </Toolbar>
+            </StyledAppBar>
           </div>
-      </Collapse>
 
-      <Container maxWidth="lg" className={classes.container}>
-      <Masonry
-        breakpointCols={3}
-        className="my-masonry-grid"
-        columnClassName="my-masonry-grid_column">
-          {renderContent()}
-      </Masonry>
-      </Container>
-      </div>
-      </MuiThemeProvider>
-    );
-  }
+          <Collapse in={drop}>
+            <div className={classes.grow}>
+              <FilterAppBar position="static" style={{ boxShadow: 'none', background: darkState ? '#1A1A1B' : 'white'}}>
+                <Toolbar>
+                  <ToggleButtonGroup
+                    value={subs}
+                    onChange={handleSubs}
+                    aria-label="text formatting"
+                  >
+                   {
+                     [...myset].map((sub) => (
+                        <ToggleButton
+                          key={sub} value={sub.toLowerCase()}
+                          style={{marginRight: '15px', textTransform: 'none', color: '#A9A9A9' ,borderStyle: 'solid', borderRadius: '5px', borderColor: darkState ? '#343536' : '#cccccc'}}
+                        >{sub}</ToggleButton>
+                     ))
+                   }
+                  </ToggleButtonGroup>
+                </Toolbar>
+              </FilterAppBar>
+              </div>
+          </Collapse>
+
+          <Container maxWidth="lg" className={classes.container}>
+          <Masonry
+            breakpointCols={3}
+            className="my-masonry-grid"
+            columnClassName="my-masonry-grid_column">
+              {renderContent()}
+          </Masonry>
+          </Container>
+          </div>
+          </MuiThemeProvider>
+        );
+      }
+      else{
+        return (
+          <div style={{ textAlign: 'center', margin: 'auto', marginTop: '35vh' }}>
+            <h2>Loading</h2>
+          </div>
+        )
+      }
+    }
   }
 
   else{
     return (
       <div style={{ textAlign: 'center', margin: 'auto', marginTop: '35vh' }}>
-        <h5>Please Login first</h5>
+        <h3>Please Login first</h3>
         {history.push(`/`)}
       </div>
     )

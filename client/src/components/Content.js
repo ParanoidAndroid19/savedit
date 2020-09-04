@@ -22,6 +22,8 @@ const useStyles = makeStyles((theme) => ({
     '&:hover': {
       borderColor: theme.palette.type === 'dark' ? '#737373' : 'black',
     },
+    overflowWrap: "break-word",
+    wordWrap: "break-word"
   },
   link: {
     textDecoration: 'none',
@@ -68,7 +70,11 @@ const Content = ({
                 <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
                   <p className={classes.sub}>r/{subreddit}</p>
                   <p className={classes.title}>{title}</p>
-                  <img src={preview.images[0].source.url} width='100%' style={{marginBottom: '10px'}}/>
+                  {
+                    preview
+                    ? <img src={preview.images[0].source.url} width='100%' style={{marginBottom: '10px'}}/>
+                    : null
+                  }
                 </a>
               </div>
           )
@@ -93,12 +99,11 @@ const Content = ({
             <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
               <p className={classes.sub}>r/{subreddit}</p>
               <p className={classes.title}>{title}</p>
-              <video preload="auto" controls width='100%' style={{marginBottom: '10px'}}>
-                  <source
-                      src={url.substring(0, url.length - 4) + "mp4"}
-                      type="video/webm"
-                  ></source>
-              </video>
+              {
+                preview
+                ? <img src={preview.images[0].source.url} width='100%' style={{marginBottom: '10px'}}/>
+                : null
+              }
             </a>
           </div>
       )
@@ -118,7 +123,20 @@ const Content = ({
           </div>
       )
   } else if (post_hint === "link") {
-      return ( <div>link</div> )
+      return (
+        <div className={classes.card}>
+          <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
+            <p className={classes.sub}>r/{subreddit}</p>
+            <p className={classes.title}>{title}</p>
+            <p>{url}</p>
+            {
+              preview
+              ? <img src={preview.images[0].source.url} width='100%' style={{marginBottom: '10px'}}/>
+              : null
+            }
+          </a>
+        </div>
+      )
   }
 
   // for posts having only text: <div dangerouslySetInnerHTML={{ __html: selftext_html }} />

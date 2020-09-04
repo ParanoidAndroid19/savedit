@@ -62,7 +62,7 @@ app.post('/reddit/getSavedContent', (req, res) => {
       username = data.name
   })
 
-  ruser.getMe().getSavedContent()/* .fetchAll() */
+  ruser.getMe().getSavedContent().fetchAll()
       .then((data) => {
           savedContent = data
       })
