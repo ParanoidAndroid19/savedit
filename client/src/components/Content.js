@@ -1,4 +1,38 @@
 import React from "react"
+import { makeStyles } from '@material-ui/core/styles';
+import Grid from '@material-ui/core/Grid';
+import Divider from '@material-ui/core/Divider';
+// import Masonry from "./Masonry"
+
+var modeL = JSON.parse(localStorage.getItem('mode'))
+
+const useStyles = makeStyles((theme) => ({
+  title: {
+    fontWeight: 600,
+    fontSize: '19px',
+    marginTop: '5px'
+  },
+  card: {
+    backgroundColor: theme.palette.type === 'dark' ? '#1A1A1B' : 'white',
+    paddingLeft: '10px',
+    paddingRight: '10px',
+    borderStyle: 'solid',
+    borderWidth: '1px',
+    borderColor: theme.palette.type === 'dark' ? '#343536' : '#a4a6a8',
+    '&:hover': {
+      borderColor: theme.palette.type === 'dark' ? '#737373' : 'black',
+    },
+  },
+  link: {
+    textDecoration: 'none',
+    color: theme.palette.type === 'dark' ? '#e6e6e6' : 'black'
+  },
+  sub: {
+    marginBottom: '0px',
+    fontSize: '16px',
+    color: '#737373'
+  }
+}))
 
 const Content = ({
     props: {
@@ -19,25 +53,23 @@ const Content = ({
         secure_media,
         selftext,
         selftext_html,
-        link_title
+        link_title,
+        preview
     },
     unsave
 }) => {
+  const classes = useStyles();
+
   // for posts having video
   if (is_video) {
       if (domain === "v.redd.it") {
           return (
-              <div>
-                <a target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
-                  <h3>{title} - {subreddit}</h3>
+              <div className={classes.card}>
+                <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
+                  <p className={classes.sub}>r/{subreddit}</p>
+                  <p className={classes.title}>{title}</p>
+                  <img src={preview.images[0].source.url} width='100%' style={{marginBottom: '10px'}}/>
                 </a>
-                  <video preload="auto" controls>
-                      <source
-                          src={secure_media.reddit_video.fallback_url}
-                          type="video/webm"
-                      ></source>
-                  </video>
-                  <p>--------------------------------------------------</p>
               </div>
           )
       }
@@ -46,28 +78,28 @@ const Content = ({
   // for posts having image
   else if (post_hint === "image") {
       return (
-        <div>
-          <a target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
-          <h3>{title} - {subreddit}</h3>
-          <img src={url} width='50%'/>
+        <div className={classes.card}>
+          <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
+            <p className={classes.sub}>r/{subreddit}</p>
+            <p className={classes.title}>{title}</p>
+            <img src={url} width='100%' style={{marginBottom: '10px'}}/>
           </a>
-          <p>--------------------------------------------------</p>
         </div>
       )
   }
   else if (post_hint === "link" && domain === "i.imgur.com") {
       return (
-          <div>
-            <a target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
-              <h3>{title} - {subreddit}</h3>
-              <video preload="auto" controls>
+          <div className={classes.card}>
+            <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
+              <p className={classes.sub}>r/{subreddit}</p>
+              <p className={classes.title}>{title}</p>
+              <video preload="auto" controls width='100%' style={{marginBottom: '10px'}}>
                   <source
                       src={url.substring(0, url.length - 4) + "mp4"}
                       type="video/webm"
                   ></source>
               </video>
             </a>
-              <p>--------------------------------------------------</p>
           </div>
       )
   }
@@ -92,25 +124,31 @@ const Content = ({
   // for posts having only text: <div dangerouslySetInnerHTML={{ __html: selftext_html }} />
   else if (selftext) {
       return (
-        <div>
-          <a target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
-            <h3>{title} - {subreddit}</h3>
-            <p>{selftext.slice(0,250)}...</p>
-          </a>
-          <p>--------------------------------------------------</p>
-        </div>
+          <div className={classes.card}>
+            <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
+              <p className={classes.sub}>r/{subreddit}</p>
+              <p className={classes.title}>{title}</p>
+              <p>{selftext.slice(0,230)}...</p>
+              {
+                preview
+                ? <img src={preview.images[0].source.url} width='100%' style={{marginBottom: '10px'}}/>
+                : null
+              }
+            </a>
+          </div>
       )
   }
 
   // for comments only: <div dangerouslySetInnerHTML={{ __html: body_html }} />
   else if (link_title) {
       return (
-        <div>
-          <a target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
-            <h3>Commented on: {link_title} in {subreddit}</h3>
-            <p>{body.slice(0,250)}...</p>
+        <div className={classes.card}>
+          <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
+            <p className={classes.sub}>r/{subreddit}</p>
+            <p className={classes.title}>{link_title}</p>
+            <p style={{borderLeftStyle: 'dotted', borderColor: '#737373', borderWidth: '3px',paddingLeft: '10px', marginLeft: '3px'}}>
+            {body.slice(0,230)}...</p>
           </a>
-          <p>--------------------------------------------------</p>
         </div>
       )
   }
