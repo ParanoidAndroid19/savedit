@@ -1,11 +1,10 @@
 <h1 align="center">Savedit for Reddit</h1>
 <h3 align="center">Filter, manage and search through all your reddit saved posts and comments easily</h1>
-<img src="https://user-images.githubusercontent.com/30766392/92469531-96a50c00-f1f2-11ea-9897-4acb23a4e171.png">
-<img src="https://user-images.githubusercontent.com/30766392/92469732-f4395880-f1f2-11ea-996f-1ebfc5623b2b.png">
+<img src="https://user-images.githubusercontent.com/30766392/92479074-b3e0d700-f200-11ea-84f4-e6f8c9622433.png">
+<img src="https://user-images.githubusercontent.com/30766392/92479083-b7745e00-f200-11ea-832e-53d0a764294a.png">
 
 ## Overview
-Reddit allows its users to save posts and comments, however does not allow users to search through the saved content or filter based on subreddits, posts or comments. 
-Savedit is a Single Page Application (SPA) built using React.js, Node.js, Material UI and Reddit API.
+Reddit allows its users to save posts and comments, however does not allow users to search through the saved content or filter based on subreddits, posts or comments. Savedit is a Single Page Application (SPA) built using React.js, Node.js, Material UI and Reddit API.
 
 ## Privacy
 This is a javascript application that runs completely in the users browser, all reddit data is stored in each users individual browser. There is no backend server. 
@@ -17,3 +16,10 @@ using OAuth2 access flow provided by the Reddit API. The reddit API access is on
 - All subreddits with saved posts are displayed.
 - Filter saves by only posts, only comments, or only specific subreddit.
 - Search through all the saved content or only through posts/comments.
+- Post thumbnails are displayed (if they are provided by the Reddit API)
+- Dark mode
+- Linked to the original post/comment on reddit.
+
+## ToDo
+- [ ] Unsave option
+- [ ] Export all saved posts in a csv file
