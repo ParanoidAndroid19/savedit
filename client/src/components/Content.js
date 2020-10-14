@@ -1,8 +1,13 @@
-import React from "react"
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+import axios from "axios"
 import Grid from '@material-ui/core/Grid';
+import IconButton from '@material-ui/core/IconButton';
 import Divider from '@material-ui/core/Divider';
-// import Masonry from "./Masonry"
+import BookmarkIcon from '@material-ui/icons/Bookmark';
+import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
+import Tooltip from '@material-ui/core/Tooltip';
+import cred from '../cred.json'
 
 var modeL = JSON.parse(localStorage.getItem('mode'))
 
@@ -57,18 +62,55 @@ const Content = ({
         selftext_html,
         link_title,
         preview
-    },
-    unsave
+    }
 }) => {
   const classes = useStyles();
+  var apiurl = cred.apiUrl
+  const [unsave, setUnsave] = useState('')
+
+  var userLS = JSON.parse(localStorage.getItem('user'))
+
+  if(!localStorage.getItem('unsave')){
+    localStorage.setItem('unsave', JSON.stringify({list: []}));
+  }
+
+  var unsaveLS = JSON.parse(localStorage.getItem('unsave'))
+
+  useEffect(() => {
+    if(unsave !== ''){
+      // console.log('should execute only when unsave is clicked: '+unsave)
+      axios.post(apiurl + "/reddit/unsaveContent", { unsave, accessToken: userLS.accessToken }, { "Content-Type": "application/json" })
+        .then((res) => { console.log(res) })
+        .catch((error) => { console.log(error) })
+    }
+  }, [unsave])
+
+  function handleUnsave(id){
+    var unsaveLS = JSON.parse(localStorage.getItem('unsave'))
+    console.log(unsaveLS.list)
+    unsaveLS.list.push(id)
+    localStorage.setItem('unsave', JSON.stringify(unsaveLS));
+    setUnsave(id)
+  }
 
   // for posts having video
   if (is_video) {
       if (domain === "v.redd.it") {
           return (
-              <div className={classes.card}>
-                <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
+            unsaveLS.list.includes(id)
+            ? null
+            : <div className={classes.card}>
+                <div style={{display: 'flex', alignItems: 'center'}}>
                   <p className={classes.sub}>r/{subreddit}</p>
+                  <Grid container justify="flex-end">
+                    <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Unsave</p>} arrow>
+                      <IconButton onClick={() => {handleUnsave(id)} } style={{ marginTop: '16px', padding: 0 }}>
+                        <BookmarkIcon style={{ fontSize: 20 }}/>
+                      </IconButton>
+                    </Tooltip>
+                  </Grid>
+                </div>
+                <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
                   <p className={classes.title}>{title}</p>
                   {
                     preview
@@ -84,20 +126,42 @@ const Content = ({
   // for posts having image
   else if (post_hint === "image") {
       return (
-        <div className={classes.card}>
-          <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
-            <p className={classes.sub}>r/{subreddit}</p>
-            <p className={classes.title}>{title}</p>
-            <img src={url} width='100%' style={{marginBottom: '10px'}}/>
-          </a>
-        </div>
+        unsaveLS.list.includes(id)
+        ? null
+        : <div className={classes.card}>
+            <div style={{display: 'flex', alignItems: 'center'}}>
+              <p className={classes.sub}>r/{subreddit}</p>
+              <Grid container justify="flex-end">
+                <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Unsave</p>} arrow>
+                  <IconButton onClick={() => {handleUnsave(id)} } style={{ marginTop: '16px', padding: 0 }}>
+                    <BookmarkIcon style={{ fontSize: 20 }}/>
+                  </IconButton>
+                </Tooltip>
+              </Grid>
+            </div>
+            <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
+              <p className={classes.title}>{title}</p>
+              <img src={url} width='100%' style={{marginBottom: '10px'}}/>
+            </a>
+          </div>
       )
   }
   else if (post_hint === "link" && domain === "i.imgur.com") {
       return (
-          <div className={classes.card}>
-            <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
+        unsaveLS.list.includes(id)
+        ? null
+        : <div className={classes.card}>
+            <div style={{display: 'flex', alignItems: 'center'}}>
               <p className={classes.sub}>r/{subreddit}</p>
+              <Grid container justify="flex-end">
+                <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Unsave</p>} arrow>
+                  <IconButton onClick={() => {handleUnsave(id)} } style={{ marginTop: '16px', padding: 0 }}>
+                    <BookmarkIcon style={{ fontSize: 20 }}/>
+                  </IconButton>
+                </Tooltip>
+              </Grid>
+            </div>
+            <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
               <p className={classes.title}>{title}</p>
               {
                 preview
@@ -122,29 +186,52 @@ const Content = ({
               ></iframe>
           </div>
       )
-  } else if (post_hint === "link") {
+  }
+  else if (post_hint === "link") {
       return (
-        <div className={classes.card}>
-          <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
-            <p className={classes.sub}>r/{subreddit}</p>
-            <p className={classes.title}>{title}</p>
-            <p>{url}</p>
-            {
-              preview
-              ? <img src={preview.images[0].source.url} width='100%' style={{marginBottom: '10px'}}/>
-              : null
-            }
-          </a>
-        </div>
+        unsaveLS.list.includes(id)
+        ? null
+        : <div className={classes.card}>
+            <div style={{display: 'flex', alignItems: 'center'}}>
+              <p className={classes.sub}>r/{subreddit}</p>
+              <Grid container justify="flex-end">
+                <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Unsave</p>} arrow>
+                  <IconButton onClick={() => {handleUnsave(id)} } style={{ marginTop: '16px', padding: 0 }}>
+                    <BookmarkIcon style={{ fontSize: 20 }}/>
+                  </IconButton>
+                </Tooltip>
+              </Grid>
+            </div>
+            <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
+              <p className={classes.title}>{title}</p>
+              <p>{url}</p>
+              {
+                preview
+                ? <img src={preview.images[0].source.url} width='100%' style={{marginBottom: '10px'}}/>
+                : null
+              }
+            </a>
+          </div>
       )
   }
 
   // for posts having only text: <div dangerouslySetInnerHTML={{ __html: selftext_html }} />
   else if (selftext) {
       return (
-          <div className={classes.card}>
-            <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
+        unsaveLS.list.includes(id)
+        ? null
+        : <div className={classes.card}>
+            <div style={{display: 'flex', alignItems: 'center'}}>
               <p className={classes.sub}>r/{subreddit}</p>
+              <Grid container justify="flex-end">
+                <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Unsave</p>} arrow>
+                  <IconButton onClick={() => {handleUnsave(id)} } style={{ marginTop: '16px', padding: 0 }}>
+                    <BookmarkIcon style={{ fontSize: 20 }}/>
+                  </IconButton>
+                </Tooltip>
+              </Grid>
+            </div>
+            <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
               <p className={classes.title}>{title}</p>
               <p>{selftext.slice(0,230)}...</p>
               {
@@ -160,25 +247,47 @@ const Content = ({
   // for comments only: <div dangerouslySetInnerHTML={{ __html: body_html }} />
   else if (link_title) {
       return (
-        <div className={classes.card}>
-          <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
-            <p className={classes.sub}>r/{subreddit}</p>
-            <p className={classes.title}>{link_title}</p>
-            <p style={{borderLeftStyle: 'dotted', borderColor: '#737373',
-            borderWidth: '3px',paddingLeft: '10px', marginLeft: '3px'}}>
-            {body.slice(0,230)}...</p>
-          </a>
-        </div>
+        unsaveLS.list.includes(id)
+        ? null
+        : <div className={classes.card}>
+            <div style={{display: 'flex', alignItems: 'center'}}>
+              <p className={classes.sub}>r/{subreddit}</p>
+              <Grid container justify="flex-end">
+                <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Unsave</p>} arrow>
+                  <IconButton onClick={() => {handleUnsave(id)} } style={{ marginTop: '16px', padding: 0 }}>
+                    <BookmarkIcon style={{ fontSize: 20 }}/>
+                  </IconButton>
+                </Tooltip>
+              </Grid>
+            </div>
+            <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
+              <p className={classes.title}>{link_title}</p>
+              <p style={{borderLeftStyle: 'dotted', borderColor: '#737373',
+              borderWidth: '3px',paddingLeft: '10px', marginLeft: '3px'}}>
+              {body.slice(0,230)}...</p>
+            </a>
+          </div>
       )
   }
   else if (thumbnail === "self") {
        return (
-         <div className={classes.card}>
-          <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
-            <p className={classes.sub}>r/{subreddit}</p>
-            <p className={classes.title}>{title}</p>
-          </a>
-         </div>
+         unsaveLS.list.includes(id)
+         ? null
+         : <div className={classes.card}>
+             <div style={{display: 'flex', alignItems: 'center'}}>
+               <p className={classes.sub}>r/{subreddit}</p>
+               <Grid container justify="flex-end">
+                 <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Unsave</p>} arrow>
+                   <IconButton onClick={() => {handleUnsave(id)} } style={{ marginTop: '16px', padding: 0 }}>
+                     <BookmarkIcon style={{ fontSize: 20 }}/>
+                   </IconButton>
+                 </Tooltip>
+               </Grid>
+             </div>
+            <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
+              <p className={classes.title}>{title}</p>
+            </a>
+          </div>
        )
   }
   else {

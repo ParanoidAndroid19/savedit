@@ -35,7 +35,7 @@ app.post('/reddit/getRedditAccessToken', (req, res) => {
     .then((data) => {
         console.log(data)
         if (typeof data.access_token !== "undefined" || data.access_token !== null) {
-            res.json({ redditAccessToken: data.access_token })
+            res.json({ redditAccessToken: data.access_token, redditRefreshToken: data.refresh_token })
         }
     })
     .catch((err) => { res.status(500).json({ error: "error1 " + err }) })
@@ -75,6 +75,49 @@ app.post('/reddit/getSavedContent', (req, res) => {
               test: "test" + "nKAvbCUe5ZVaSVAcPPfkkiAsKKs"
           })
       })
+})
+
+
+app.post('/reddit/unsaveContent', (req, res) => {
+  console.log(req.body)
+
+  const ruser = new snoowrap({
+      userAgent: cred.userAgent,
+      clientId: cred.clientId,
+      clientSecret: cred.clientSecret,
+      accessToken: req.body.accessToken
+  })
+
+  ruser.getSubmission(req.body.unsave).unsave()
+      .then(() => {
+          res.status(200).json({ success: "successfully unsaved" })
+      })
+      .catch((err) => {
+          res.status(500).json({ error: err.code })
+      })
+})
+
+
+app.post('/reddit/refreshAccessToken', (req, res) => {
+  const redditClientId = cred.clientId
+  const redditClientSecret = cred.clientSecret
+
+  refreshToken = req.body.refreshToken
+
+  const callApi = "https://www.reddit.com/api/v1/access_token?grant_type=refresh_token&refresh_token=" + refreshToken
+
+  fetch(callApi, {
+      method: "POST",
+      headers: { Authorization: "Basic " + base64.encode(redditClientId + ":" + redditClientSecret)}
+  })
+    .then((response) => response.json())
+    .then((data) => {
+        console.log(data)
+        if (typeof data.access_token !== "undefined" || data.access_token !== null) {
+            res.json({ redditAccessToken: data.access_token })
+        }
+    })
+    .catch((err) => { res.status(500).json({ error: "error1 " + err }) })
 })
 
 

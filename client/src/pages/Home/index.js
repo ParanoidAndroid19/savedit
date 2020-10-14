@@ -18,6 +18,7 @@ import Brightness7Icon from '@material-ui/icons/Brightness7';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 import Tooltip from '@material-ui/core/Tooltip';
 import Paper from '@material-ui/core/Paper';
+import axios from "axios"
 import styled from "styled-components";
 import cred from '../../cred.json'
 import Content from "../../components/Content"
@@ -86,6 +87,20 @@ const useStyles = makeStyles((darkTheme) => ({
     color: "black",
     paddingTop: "3px"
   },
+  '@global': {
+    '*::-webkit-scrollbar': {
+      width: '8px',
+      height: '8px'
+    },
+    '*::-webkit-scrollbar-track': {
+      '-webkit-box-shadow': 'inset 0 0 6px rgba(0,0,0,0.1)',
+      // backgroundColor: 'rgba(0,0,0,0.5)'
+    },
+    '*::-webkit-scrollbar-thumb': {
+      backgroundColor: '#cccccc',
+      borderRadius: '10px',
+    }
+  }
 }));
 
 
@@ -121,8 +136,12 @@ export default function HomePage() {
   const [drop, setDrop] = useState(false);
   const [go, setGo] = useState(false);
   const [dataList, setDataList] = useState(null)
-  // var dataList;
+  const [updateToken, setUpdateToken] = useState(null);
+  var counter = 0;
+  var timer = null;
+  var apiurl = cred.apiUrl
 
+  // getting savedContent from indexedDB
   useEffect(() => {
     var request = indexedDB.open("Adb", 1);
 
@@ -187,6 +206,38 @@ export default function HomePage() {
   if(localStorage.getItem('user')){
     userLS = JSON.parse(localStorage.getItem('user'))
   }
+
+  // Updating accessToken using refreshToken
+  useEffect(() => {
+    if(userLS.accessToken && userLS.tokenTime && userLS.refreshToken){
+      var myDate = userLS.tokenTime
+
+      function refreshToken() {
+        if(Date.now() - myDate > 3600000){
+
+          axios.post(apiurl + "/reddit/refreshAccessToken", { refreshToken: userLS.refreshToken }, { "Content-Type": "application/json" })
+            .then((res) => {
+              if (res.data.redditAccessToken && res.status === 200) {
+                // localStorage.setItem('user', JSON.stringify({accessToken: res.data.redditAccessToken, tokenTime: Date.now(), refreshToken: res.data.redditRefreshToken}))
+                userLS['accessToken'] = res.data.redditAccessToken
+                userLS['tokenTime'] = Date.now()
+                localStorage.setItem('user', JSON.stringify(userLS));
+                console.log('updated access token')
+              }
+              else{ console.log('failed!') }
+            })
+            .catch((error) => { console.log(error) })
+
+          myDate = Date.now()
+        }
+      }
+
+      const interval = setInterval(() => refreshToken(), 10000)
+      return () => {
+        clearInterval(interval);
+      }
+    }
+  }, [])
 
   function renderContent() {
     if(input===""){

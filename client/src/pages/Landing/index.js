@@ -12,7 +12,7 @@ export default function Login() {
       cred.clientId +
       "&response_type=code&state=RANDOM_STRING&redirect_uri=" +
       cred.redirectUrl +
-      "&duration=temporary&scope=identity history save"
+      "&duration=permanent&scope=identity history save"
 
   if(localStorage.getItem('user')){
     var userLS = JSON.parse(localStorage.getItem('user'))

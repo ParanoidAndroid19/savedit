@@ -22,7 +22,7 @@ export default function Login(props) {
             .then((res) => {
               if (res.data.redditAccessToken && res.status === 200) {
                 setRedditAccessToken(res.data.redditAccessToken)
-                localStorage.setItem('user', JSON.stringify({accessToken: res.data.redditAccessToken}))
+                localStorage.setItem('user', JSON.stringify({accessToken: res.data.redditAccessToken, tokenTime: Date.now(), refreshToken: res.data.redditRefreshToken}))
               }
               else{
                 console.log('failed!')
