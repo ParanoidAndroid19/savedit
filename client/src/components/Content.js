@@ -38,6 +38,11 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: '0px',
     fontSize: '16px',
     color: '#737373'
+  },
+  unsaveStyle: {
+    marginTop: '16px',
+    padding: 0,
+    color: '#707070'
   }
 }))
 
@@ -76,21 +81,25 @@ const Content = ({
 
   var unsaveLS = JSON.parse(localStorage.getItem('unsave'))
 
-  useEffect(() => {
-    if(unsave !== ''){
-      // console.log('should execute only when unsave is clicked: '+unsave)
-      axios.post(apiurl + "/reddit/unsaveContent", { unsave, accessToken: userLS.accessToken }, { "Content-Type": "application/json" })
-        .then((res) => { console.log(res) })
-        .catch((error) => { console.log(error) })
-    }
-  }, [unsave])
+  // useEffect(() => {
+  //   if(unsave !== ''){
+  //     // console.log('should execute only when unsave is clicked: '+unsave)
+  //     axios.post(apiurl + "/reddit/unsaveContent", { unsave, accessToken: userLS.accessToken }, { "Content-Type": "application/json" })
+  //       .then((res) => { console.log(res) })
+  //       .catch((error) => { console.log(error) })
+  //   }
+  // }, [unsave])
 
-  function handleUnsave(id){
-    var unsaveLS = JSON.parse(localStorage.getItem('unsave'))
-    console.log(unsaveLS.list)
-    unsaveLS.list.push(id)
-    localStorage.setItem('unsave', JSON.stringify(unsaveLS));
-    setUnsave(id)
+  function handleUnsave(id, type){
+    axios.post(apiurl + "/reddit/unsaveContent", { unsave: id, accessToken: userLS.accessToken, type: type }, { "Content-Type": "application/json" })
+      .then((res) => {
+        console.log(res)
+        var unsaveLS = JSON.parse(localStorage.getItem('unsave'))
+        unsaveLS.list.push(id)
+        localStorage.setItem('unsave', JSON.stringify(unsaveLS));
+        setUnsave(id)
+      })
+      .catch((error) => { console.log(error) })
   }
 
   // for posts having video
@@ -104,7 +113,7 @@ const Content = ({
                   <p className={classes.sub}>r/{subreddit}</p>
                   <Grid container justify="flex-end">
                     <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Unsave</p>} arrow>
-                      <IconButton onClick={() => {handleUnsave(id)} } style={{ marginTop: '16px', padding: 0 }}>
+                      <IconButton onClick={() => {handleUnsave(id)} } className={classes.unsaveStyle}>
                         <BookmarkIcon style={{ fontSize: 20 }}/>
                       </IconButton>
                     </Tooltip>
@@ -133,7 +142,7 @@ const Content = ({
               <p className={classes.sub}>r/{subreddit}</p>
               <Grid container justify="flex-end">
                 <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Unsave</p>} arrow>
-                  <IconButton onClick={() => {handleUnsave(id)} } style={{ marginTop: '16px', padding: 0 }}>
+                  <IconButton onClick={() => {handleUnsave(id)} } className={classes.unsaveStyle}>
                     <BookmarkIcon style={{ fontSize: 20 }}/>
                   </IconButton>
                 </Tooltip>
@@ -155,7 +164,7 @@ const Content = ({
               <p className={classes.sub}>r/{subreddit}</p>
               <Grid container justify="flex-end">
                 <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Unsave</p>} arrow>
-                  <IconButton onClick={() => {handleUnsave(id)} } style={{ marginTop: '16px', padding: 0 }}>
+                  <IconButton onClick={() => {handleUnsave(id)} } className={classes.unsaveStyle}>
                     <BookmarkIcon style={{ fontSize: 20 }}/>
                   </IconButton>
                 </Tooltip>
@@ -196,7 +205,7 @@ const Content = ({
               <p className={classes.sub}>r/{subreddit}</p>
               <Grid container justify="flex-end">
                 <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Unsave</p>} arrow>
-                  <IconButton onClick={() => {handleUnsave(id)} } style={{ marginTop: '16px', padding: 0 }}>
+                  <IconButton onClick={() => {handleUnsave(id)} } className={classes.unsaveStyle}>
                     <BookmarkIcon style={{ fontSize: 20 }}/>
                   </IconButton>
                 </Tooltip>
@@ -225,7 +234,7 @@ const Content = ({
               <p className={classes.sub}>r/{subreddit}</p>
               <Grid container justify="flex-end">
                 <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Unsave</p>} arrow>
-                  <IconButton onClick={() => {handleUnsave(id)} } style={{ marginTop: '16px', padding: 0 }}>
+                  <IconButton onClick={() => {handleUnsave(id)} } className={classes.unsaveStyle}>
                     <BookmarkIcon style={{ fontSize: 20 }}/>
                   </IconButton>
                 </Tooltip>
@@ -254,7 +263,7 @@ const Content = ({
               <p className={classes.sub}>r/{subreddit}</p>
               <Grid container justify="flex-end">
                 <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Unsave</p>} arrow>
-                  <IconButton onClick={() => {handleUnsave(id)} } style={{ marginTop: '16px', padding: 0 }}>
+                  <IconButton onClick={() => {handleUnsave(id, 'comment')} } className={classes.unsaveStyle}>
                     <BookmarkIcon style={{ fontSize: 20 }}/>
                   </IconButton>
                 </Tooltip>
@@ -278,7 +287,7 @@ const Content = ({
                <p className={classes.sub}>r/{subreddit}</p>
                <Grid container justify="flex-end">
                  <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Unsave</p>} arrow>
-                   <IconButton onClick={() => {handleUnsave(id)} } style={{ marginTop: '16px', padding: 0 }}>
+                   <IconButton onClick={() => {handleUnsave(id)} } className={classes.unsaveStyle}>
                      <BookmarkIcon style={{ fontSize: 20 }}/>
                    </IconButton>
                  </Tooltip>

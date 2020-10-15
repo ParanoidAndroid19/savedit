@@ -43,7 +43,9 @@ export default function Login(props) {
     if(localStorage.getItem('user') && redditAccessToken){
       console.log('twice?')
       var userLS = JSON.parse(localStorage.getItem('user'))
-      if(!userLS.redditName){
+
+      //triggered when we have accessToken and not savedContent yet (redditname is set along with savedcontent).
+      if(!userLS.redditName && userLS.accessToken){
         console.log('Getting saved content?')
         axios.post(apiurl + "/reddit/getSavedContent", { accessToken: userLS.accessToken }, { "Content-Type": "application/json" })
           .then((res) => {
@@ -52,20 +54,39 @@ export default function Login(props) {
             var request = indexedDB.open("Adb", 1);
             const userData = [{ key: "user", savedContent: res.data.savedContent }];
             console.log(userData)
-            // write data
+
+            // write data, this is trigged the first time when Adb is created
             request.onupgradeneeded = function (event) {
               var db = event.target.result;
               var objectStore = db.createObjectStore("saved", { keyPath: "key" });
-              objectStore.transaction.oncomplete = function (event) {
-                // Store values in the newly created objectStore.
-                var customerObjectStore = db
-                  .transaction("saved", "readwrite")
-                  .objectStore("saved");
-                userData.forEach(function (user) {
-                  customerObjectStore.add(user);
-                });
-              };
+              // objectStore.transaction.oncomplete = function (event) {
+              //   // Store values in the newly created objectStore.
+              //   var customerObjectStore = db
+              //     .transaction("saved", "readwrite")
+              //     .objectStore("saved");
+              //   userData.forEach(function (user) {
+              //     customerObjectStore.add(user);
+              //   });
+              // };
+              console.log('Triggered only once when Adb is created for the first time')
             };
+
+            //triggered everytime Adb successfully opens
+            request.onsuccess = function (event) {
+              var db = event.target.result;
+              var customerObjectStore = db
+                .transaction("saved", "readwrite")
+                .objectStore("saved");
+              userData.forEach(function (user) {
+                customerObjectStore.put(user);
+              });
+              if(localStorage.getItem('unsave')){
+                var unsaveLS = JSON.parse(localStorage.getItem('unsave'))
+                unsaveLS['list'] = []
+                localStorage.setItem('unsave', JSON.stringify(unsaveLS));
+              }
+              console.log('executed everytime DB is opened, data is entered/updated')
+            }
 
             userLS['redditName'] = res.data.redditName
             // userLS['savedContent'] = res.data.savedContent

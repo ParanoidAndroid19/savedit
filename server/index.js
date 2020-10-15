@@ -88,13 +88,25 @@ app.post('/reddit/unsaveContent', (req, res) => {
       accessToken: req.body.accessToken
   })
 
-  ruser.getSubmission(req.body.unsave).unsave()
-      .then(() => {
-          res.status(200).json({ success: "successfully unsaved" })
-      })
-      .catch((err) => {
-          res.status(500).json({ error: err.code })
-      })
+  if(req.body.type === 'comment'){
+    ruser.getComment(req.body.unsave).unsave()
+        .then(() => {
+            res.status(200).json({ success: "successfully unsaved comment" })
+        })
+        .catch((err) => {
+            res.status(500).json({ error: err.code, data: req.body })
+        })
+  }
+  else{
+    ruser.getSubmission(req.body.unsave).unsave()
+        .then(() => {
+            res.status(200).json({ success: "successfully unsaved" })
+        })
+        .catch((err) => {
+            res.status(500).json({ error: err.code, data: req.body })
+        })
+  }
+
 })
 
 

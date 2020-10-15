@@ -24,7 +24,12 @@ import cred from '../../cred.json'
 import Content from "../../components/Content"
 import './index.css';
 import Masonry from 'react-masonry-css'
-
+import Fab from '@material-ui/core/Fab';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import Zoom from '@material-ui/core/Zoom';
+import RefreshIcon from '@material-ui/icons/Refresh';
+import useScrollTrigger from '@material-ui/core/useScrollTrigger';
+import PropTypes from 'prop-types';
 
 const useStyles = makeStyles((darkTheme) => ({
   container: {
@@ -100,8 +105,53 @@ const useStyles = makeStyles((darkTheme) => ({
       backgroundColor: '#cccccc',
       borderRadius: '10px',
     }
-  }
+  },
+  fab: {
+    // margin: theme.spacing.unit, // You might not need this now
+    position: "fixed",
+    bottom: darkTheme.spacing.unit * 2,
+    right: darkTheme.spacing.unit * 3
+  },
 }));
+
+
+function ScrollTop(props) {
+  const { children, window } = props;
+  const classes = useStyles();
+  // Note that you normally won't need to set the window ref as useScrollTrigger
+  // will default to window.
+  // This is only being set here because the demo is in an iframe.
+  const trigger = useScrollTrigger({
+    target: window ? window() : undefined,
+    disableHysteresis: true,
+    threshold: 100,
+  });
+
+  const handleClick = (event) => {
+    const anchor = (event.target.ownerDocument || document).querySelector('#back-to-top-anchor');
+
+    if (anchor) {
+      anchor.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
+  return (
+    <Zoom in={trigger}>
+      <div onClick={handleClick} role="presentation" className={classes.root}>
+        {children}
+      </div>
+    </Zoom>
+  );
+}
+
+ScrollTop.propTypes = {
+  children: PropTypes.element.isRequired,
+  /**
+   * Injected by the documentation to work in an iframe.
+   * You won't need it on your project.
+   */
+  window: PropTypes.func,
+};
 
 
 const StyledAppBar = styled(AppBar)`
@@ -125,7 +175,7 @@ const FilterAppBar = styled(AppBar)`
 `;
 
 
-export default function HomePage() {
+export default function HomePage(props) {
   const classes = useStyles();
   const theme = useTheme();
   let history = useHistory();
@@ -136,9 +186,6 @@ export default function HomePage() {
   const [drop, setDrop] = useState(false);
   const [go, setGo] = useState(false);
   const [dataList, setDataList] = useState(null)
-  const [updateToken, setUpdateToken] = useState(null);
-  var counter = 0;
-  var timer = null;
   var apiurl = cred.apiUrl
 
   // getting savedContent from indexedDB
@@ -209,32 +256,34 @@ export default function HomePage() {
 
   // Updating accessToken using refreshToken
   useEffect(() => {
-    if(userLS.accessToken && userLS.tokenTime && userLS.refreshToken){
-      var myDate = userLS.tokenTime
+    if(userLS){
+      if(userLS.tokenTime && userLS.refreshToken){
+        var myDate = userLS.tokenTime
 
-      function refreshToken() {
-        if(Date.now() - myDate > 3600000){
+        function refreshToken() {
+          if(Date.now() - myDate > 3600000){
 
-          axios.post(apiurl + "/reddit/refreshAccessToken", { refreshToken: userLS.refreshToken }, { "Content-Type": "application/json" })
-            .then((res) => {
-              if (res.data.redditAccessToken && res.status === 200) {
-                // localStorage.setItem('user', JSON.stringify({accessToken: res.data.redditAccessToken, tokenTime: Date.now(), refreshToken: res.data.redditRefreshToken}))
-                userLS['accessToken'] = res.data.redditAccessToken
-                userLS['tokenTime'] = Date.now()
-                localStorage.setItem('user', JSON.stringify(userLS));
-                console.log('updated access token')
-              }
-              else{ console.log('failed!') }
-            })
-            .catch((error) => { console.log(error) })
+            axios.post(apiurl + "/reddit/refreshAccessToken", { refreshToken: userLS.refreshToken }, { "Content-Type": "application/json" })
+              .then((res) => {
+                if (res.data.redditAccessToken && res.status === 200) {
+                  // localStorage.setItem('user', JSON.stringify({accessToken: res.data.redditAccessToken, tokenTime: Date.now(), refreshToken: res.data.redditRefreshToken}))
+                  userLS['accessToken'] = res.data.redditAccessToken
+                  userLS['tokenTime'] = Date.now()
+                  localStorage.setItem('user', JSON.stringify(userLS));
+                  console.log('updated access token')
+                }
+                else{ console.log('failed!') }
+              })
+              .catch((error) => { console.log(error) })
 
-          myDate = Date.now()
+            myDate = Date.now()
+          }
         }
-      }
 
-      const interval = setInterval(() => refreshToken(), 10000)
-      return () => {
-        clearInterval(interval);
+        const interval = setInterval(() => refreshToken(), 10000)
+        return () => {
+          clearInterval(interval);
+        }
       }
     }
   }, [])
@@ -379,7 +428,7 @@ export default function HomePage() {
             <CssBaseline />
           <div style={{backgroundColor: darkState ? 'black' : '#DAE0E6', minHeight: '100vh'}}>
           <div className={classes.grow}>
-            <StyledAppBar position="static" style={{ boxShadow: 'none',
+            <StyledAppBar position="fixed" style={{ boxShadow: 'none',
               background: darkState ? '#1A1A1B' : 'white', borderColor: darkState ? '#343536' : '#d9d9d9'}}>
               <Toolbar style={{paddingLeft: '18px'}}>
                 <Typography className={classes.title} variant="h5" noWrap style={{color: darkState ? '#C0C0C0' : 'black'}}>
@@ -426,6 +475,12 @@ export default function HomePage() {
                   >Comments</ToggleButton>
                 </ToggleButtonGroup>
 
+                <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Refresh</p>} arrow>
+                  <IconButton style={{color: '#cccccc', padding: 0, marginLeft: '8px'}}>
+                    <RefreshIcon />
+                  </IconButton>
+                </Tooltip>
+
                 <div className={classes.grow} />
                 <div className={classes.sectionDesktop}>
                   <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Toggle light/dark theme</p>} arrow>
@@ -464,15 +519,22 @@ export default function HomePage() {
               </FilterAppBar>
               </div>
           </Collapse>
+          <Toolbar id="back-to-top-anchor" />
 
           <Container maxWidth="lg" className={classes.container}>
-          <Masonry
-            breakpointCols={3}
-            className="my-masonry-grid"
-            columnClassName="my-masonry-grid_column">
-              {renderContent()}
-          </Masonry>
+            <Masonry
+              breakpointCols={3}
+              className="my-masonry-grid"
+              columnClassName="my-masonry-grid_column">
+                {renderContent()}
+            </Masonry>
           </Container>
+
+          <ScrollTop {...props}>
+            <Fab style={{backgroundColor: darkState ? '#1A1A1B' : 'white', color: darkState ? '#343536' : '#707070'}} size="small" aria-label="scroll back to top" className={classes.fab}>
+              <KeyboardArrowUpIcon />
+            </Fab>
+          </ScrollTop>
           </div>
           </MuiThemeProvider>
         );
