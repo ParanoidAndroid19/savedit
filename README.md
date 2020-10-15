@@ -20,5 +20,5 @@ using OAuth2 access flow provided by the Reddit API. The reddit API access is on
 - Linked to the original post/comment on reddit.
 
 ## ToDo
-- [ ] Unsave option
+- [X] Unsave option
 - [ ] Export all saved posts in a csv file
