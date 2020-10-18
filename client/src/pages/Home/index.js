@@ -18,6 +18,7 @@ import Brightness7Icon from '@material-ui/icons/Brightness7';
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 import Tooltip from '@material-ui/core/Tooltip';
 import Paper from '@material-ui/core/Paper';
+import Divider from '@material-ui/core/Divider';
 import axios from "axios"
 import styled from "styled-components";
 import cred from '../../cred.json'
@@ -29,7 +30,10 @@ import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import Zoom from '@material-ui/core/Zoom';
 import RefreshIcon from '@material-ui/icons/Refresh';
 import useScrollTrigger from '@material-ui/core/useScrollTrigger';
+import Backdrop from '@material-ui/core/Backdrop';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import PropTypes from 'prop-types';
+import { SnackbarProvider, useSnackbar } from 'notistack';
 
 const useStyles = makeStyles((darkTheme) => ({
   container: {
@@ -112,6 +116,10 @@ const useStyles = makeStyles((darkTheme) => ({
     bottom: darkTheme.spacing.unit * 2,
     right: darkTheme.spacing.unit * 3
   },
+  backdrop: {
+    zIndex: darkTheme.zIndex.drawer + 1,
+    color: '#fff',
+  },
 }));
 
 
@@ -186,6 +194,7 @@ export default function HomePage(props) {
   const [drop, setDrop] = useState(false);
   const [go, setGo] = useState(false);
   const [dataList, setDataList] = useState(null)
+  const [openBackdrop, setBackdrop] = useState(false);
   var apiurl = cred.apiUrl
 
   // getting savedContent from indexedDB
@@ -287,6 +296,57 @@ export default function HomePage(props) {
       }
     }
   }, [])
+
+
+  function refreshContent(){
+    if(userLS){
+      setBackdrop(true)
+      console.log('refreshing saved content')
+
+      axios.post(apiurl + "/reddit/getSavedContent", { accessToken: userLS.accessToken }, { "Content-Type": "application/json" })
+        .then((res) => {
+          console.log(res)
+
+          var request = indexedDB.open("Adb", 1);
+          const userData = [{ key: "user", savedContent: res.data.savedContent }];
+          console.log(userData)
+
+          request.onerror = function (event) {
+            console.log("Why didn't you allow my web app to use IndexedDB?!");
+          };
+
+          //triggered everytime Adb successfully opens
+          request.onsuccess = function (event) {
+            var db = event.target.result;
+
+            //storing the newly fetched saved content in DB
+            var customerObjectStore = db
+              .transaction("saved", "readwrite")
+              .objectStore("saved");
+            userData.forEach(function (user) {
+              customerObjectStore.put(user);
+            });
+            if(localStorage.getItem('unsave')){
+              var unsaveLS = JSON.parse(localStorage.getItem('unsave'))
+              unsaveLS['list'] = []
+              localStorage.setItem('unsave', JSON.stringify(unsaveLS));
+            }
+            console.log('executed everytime DB is opened, data is entered/updated')
+
+            // retrieveing the newly added data from DB
+            db.transaction("saved").objectStore("saved").get("user").onsuccess = function (event) {
+              // console.log(event.target.result);
+              setDataList(event.target.result)
+              // console.log(dataList.savedContent);
+              setGo(true)
+              setBackdrop(false)
+            };
+          }
+        })
+        .catch((error) => { console.log(error) })
+    }
+  }
+
 
   function renderContent() {
     if(input===""){
@@ -426,6 +486,7 @@ export default function HomePage(props) {
         return (
           <MuiThemeProvider theme={darkTheme}>
             <CssBaseline />
+          <SnackbarProvider maxSnack={3} anchorOrigin={{vertical: 'top', horizontal: 'center',}}>
           <div style={{backgroundColor: darkState ? 'black' : '#DAE0E6', minHeight: '100vh'}}>
           <div className={classes.grow}>
             <StyledAppBar position="fixed" style={{ boxShadow: 'none',
@@ -476,7 +537,7 @@ export default function HomePage(props) {
                 </ToggleButtonGroup>
 
                 <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Refresh</p>} arrow>
-                  <IconButton style={{color: '#cccccc', padding: 0, marginLeft: '8px'}}>
+                  <IconButton onClick={refreshContent} style={{color: '#cccccc', padding: 0, marginLeft: '8px'}}>
                     <RefreshIcon />
                   </IconButton>
                 </Tooltip>
@@ -494,34 +555,37 @@ export default function HomePage(props) {
                   <p style={{color: darkState ? '#C0C0C0' : 'black'}}>{userLS.redditName}</p>
                 </div>
               </Toolbar>
+
+              <Divider />
+
+              <Collapse in={drop}>
+                <div className={classes.grow}>
+                  <FilterAppBar position="static" style={{ boxShadow: 'none', background: darkState ? '#1A1A1B' : 'white'}}>
+                    <Toolbar>
+                      <ToggleButtonGroup
+                        value={subs}
+                        onChange={handleSubs}
+                        aria-label="text formatting"
+                      >
+                       {
+                         [...myset].map((sub) => (
+                            <ToggleButton
+                              key={sub} value={sub.toLowerCase()}
+                              style={{marginRight: '15px', textTransform: 'none', color: '#A9A9A9' ,borderStyle: 'solid', borderRadius: '5px', borderColor: darkState ? '#343536' : '#cccccc'}}
+                            >{sub}</ToggleButton>
+                         ))
+                       }
+                      </ToggleButtonGroup>
+                    </Toolbar>
+                  </FilterAppBar>
+                  </div>
+              </Collapse>
             </StyledAppBar>
           </div>
 
-          <Collapse in={drop}>
-            <div className={classes.grow}>
-              <FilterAppBar position="static" style={{ boxShadow: 'none', background: darkState ? '#1A1A1B' : 'white'}}>
-                <Toolbar>
-                  <ToggleButtonGroup
-                    value={subs}
-                    onChange={handleSubs}
-                    aria-label="text formatting"
-                  >
-                   {
-                     [...myset].map((sub) => (
-                        <ToggleButton
-                          key={sub} value={sub.toLowerCase()}
-                          style={{marginRight: '15px', textTransform: 'none', color: '#A9A9A9' ,borderStyle: 'solid', borderRadius: '5px', borderColor: darkState ? '#343536' : '#cccccc'}}
-                        >{sub}</ToggleButton>
-                     ))
-                   }
-                  </ToggleButtonGroup>
-                </Toolbar>
-              </FilterAppBar>
-              </div>
-          </Collapse>
           <Toolbar id="back-to-top-anchor" />
 
-          <Container maxWidth="lg" className={classes.container}>
+          <Container maxWidth="lg" style={{marginTop: drop ? '120px' : null}} className={classes.container}>
             <Masonry
               breakpointCols={3}
               className="my-masonry-grid"
@@ -536,6 +600,12 @@ export default function HomePage(props) {
             </Fab>
           </ScrollTop>
           </div>
+
+          <Backdrop className={classes.backdrop} open={openBackdrop}>
+            <CircularProgress color="inherit" />
+          </Backdrop>
+
+          </SnackbarProvider>
           </MuiThemeProvider>
         );
       }

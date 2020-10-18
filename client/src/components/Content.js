@@ -7,6 +7,7 @@ import Divider from '@material-ui/core/Divider';
 import BookmarkIcon from '@material-ui/icons/Bookmark';
 import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
 import Tooltip from '@material-ui/core/Tooltip';
+import { SnackbarProvider, useSnackbar } from 'notistack';
 import cred from '../cred.json'
 
 var modeL = JSON.parse(localStorage.getItem('mode'))
@@ -73,6 +74,14 @@ const Content = ({
   var apiurl = cred.apiUrl
   const [unsave, setUnsave] = useState('')
 
+  const { enqueueSnackbar } = useSnackbar();
+
+  const handleToastVariant = (variant) => () => {
+    // variant could be success, error, warning, info, or default
+    enqueueSnackbar('This is a success message!', { variant });
+    console.log('where is the message??')
+  };
+
   var userLS = JSON.parse(localStorage.getItem('user'))
 
   if(!localStorage.getItem('unsave')){
@@ -98,6 +107,7 @@ const Content = ({
         unsaveLS.list.push(id)
         localStorage.setItem('unsave', JSON.stringify(unsaveLS));
         setUnsave(id)
+        enqueueSnackbar('This is a success message!', { variant: 'success' });
       })
       .catch((error) => { console.log(error) })
   }
@@ -260,7 +270,7 @@ const Content = ({
         ? null
         : <div className={classes.card}>
             <div style={{display: 'flex', alignItems: 'center'}}>
-              <p className={classes.sub}>r/{subreddit}</p>
+              <p className={classes.sub} onClick={handleToastVariant('success')}>r/{subreddit}</p>
               <Grid container justify="flex-end">
                 <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Unsave</p>} arrow>
                   <IconButton onClick={() => {handleUnsave(id, 'comment')} } className={classes.unsaveStyle}>
@@ -300,7 +310,25 @@ const Content = ({
        )
   }
   else {
-      return <div>{body}</div>
+    return (
+      unsaveLS.list.includes(id)
+      ? null
+      : <div className={classes.card}>
+          <div style={{display: 'flex', alignItems: 'center'}}>
+            <p className={classes.sub}>r/{subreddit}</p>
+            <Grid container justify="flex-end">
+              <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Unsave</p>} arrow>
+                <IconButton onClick={() => {handleUnsave(id)} } className={classes.unsaveStyle}>
+                  <BookmarkIcon style={{ fontSize: 20 }}/>
+                </IconButton>
+              </Tooltip>
+            </Grid>
+          </div>
+         <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
+           <p className={classes.title}>{title}</p>
+         </a>
+       </div>
+    )
   }
 }
 
