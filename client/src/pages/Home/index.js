@@ -19,6 +19,14 @@ import Brightness4Icon from '@material-ui/icons/Brightness4';
 import Tooltip from '@material-ui/core/Tooltip';
 import Paper from '@material-ui/core/Paper';
 import Divider from '@material-ui/core/Divider';
+import Popover from '@material-ui/core/Popover';
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemIcon from "@material-ui/core/ListItemIcon";
+import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
+import ListItemText from "@material-ui/core/ListItemText";
+import Box from "@material-ui/core/Box";
+import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import axios from "axios"
 import styled from "styled-components";
 import cred from '../../cred.json'
@@ -469,7 +477,24 @@ export default function HomePage(props) {
     }
   }
 
-  // console.log(input)
+  function handleLogout(){
+    console.log('Logging out')
+    localStorage.removeItem('user');
+    localStorage.removeItem('unsave');
+
+    var DBDeleteRequest = indexedDB.deleteDatabase("Adb");
+
+    DBDeleteRequest.onerror = function(event) {
+      console.log("Error deleting database.");
+    };
+
+    DBDeleteRequest.onsuccess = function(event) {
+      console.log("Database deleted successfully");
+      console.log(event.result); // should be undefined
+    };
+
+    history.push(`/`)
+  }
 
   var subredditsList = [];
   var myset = new Set();
@@ -553,6 +578,11 @@ export default function HomePage(props) {
                     </IconButton>
                   </Tooltip>
                   <p style={{color: darkState ? '#C0C0C0' : 'black'}}>{userLS.redditName}</p>
+                  <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Logout</p>} arrow>
+                    <IconButton onClick={handleLogout} style={{paddingRight: 0}}>
+                      <ExitToAppIcon />
+                    </IconButton>
+                  </Tooltip>
                 </div>
               </Toolbar>
 

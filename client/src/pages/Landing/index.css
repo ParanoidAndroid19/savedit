@@ -1,0 +1,24 @@
+.body {
+  overflow: hidden;
+  background-image: url("../../assets/landingBG.png");
+  background-repeat: repeat;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.cursive {
+  font-family: Pacifico, cursive, Source Sans Pro, sans-serif;
+}
+
+.normal {
+  font-family: Source Sans Pro, sans-serif;
+}
+
+a:link {
+  text-decoration: none;
+}
+
+a:visited {
+  color: black;
+}
