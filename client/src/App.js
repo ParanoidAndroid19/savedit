@@ -7,6 +7,8 @@ import Home from './pages/Home/index'
 import Login from './pages/Login/index'
 import Landing from './pages/Landing/index'
 import Loading from './Loading'
+import LoadingScreen from './pages/LoadingScreen/index'
+import NotFoundPage from './pages/NotFoundPage/index'
 import './App.css';
 
 if(!localStorage.getItem('mode')){
@@ -54,11 +56,17 @@ function App() {
           exact
           component={Home}
         />
+        {/* <Route
+          path={`/loading`}
+          exact
+          component={LoadingScreen}
+        /> */}
         <Route
           path={`/`}
           exact
           component={Landing}
         />
+        {/* <Route path='*' exact component={NotFoundPage} /> */}
       </Router>
     </Suspense>
     </MuiThemeProvider>

@@ -50,31 +50,122 @@ app.post('/reddit/getSavedContent', (req, res) => {
   var username = ""
 
   console.log(req.body)
-  const ruser = new snoowrap({
-      userAgent: cred.userAgent,
-      clientId: cred.clientId,
-      clientSecret: cred.clientSecret,
-      accessToken: req.body.accessToken
-  })
 
-  ruser.getMe().then((data) => {
-      // var allData = JSON.stringify(data)
-      username = data.name
+  fetch("https://oauth.reddit.com/api/v1/me", {
+    method: "GET",
+    headers: { 'Authorization': `bearer ${req.body.accessToken}` }
   })
+    .then((response) => response.json())
+    .then((data) => {
+        console.log(data.name)
+        username = data.name
 
-  ruser.getMe().getSavedContent().fetchAll()
-      .then((data) => {
-          savedContent = data
-      })
-      .then(() => {
-          res.json({ redditName: username, savedContent: savedContent })
-      })
-      .catch((err) => {
-          res.status(500).json({
-              error: err,
-              test: "test" + "nKAvbCUe5ZVaSVAcPPfkkiAsKKs"
-          })
-      })
+        fetch(`https://oauth.reddit.com/user/${data.name}/saved/.json?limit=25&raw_json=1`, {
+            method: "GET",
+            headers: { 'Authorization': `bearer ${req.body.accessToken}` }
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                data.data.children.map((child) => {
+                    savedContent.push(child.data)
+                })
+                console.log(`fetching saved content till ${data.data.after}`)
+            })
+            .then(() => {
+                res.json({ redditName: username, savedContent: savedContent })
+            })
+            .catch((err) => { console.log(err) })
+    })
+    // .then(() => {
+    //     res.json({ redditName: username, savedContent: savedContent })
+    // })
+    .catch((err) => {
+        res.status(500).json({
+            error: err,
+            test: "test" + "nKAvbCUe5ZVaSVAcPPfkkiAsKKs"
+        })
+    })
+
+//   const ruser = new snoowrap({
+//       userAgent: cred.userAgent,
+//       clientId: cred.clientId,
+//       clientSecret: cred.clientSecret,
+//       accessToken: req.body.accessToken
+//   })
+
+//   ruser.getMe().then((data) => {
+//       // var allData = JSON.stringify(data)
+//       username = data.name
+//   })
+
+// //   ruser.getMe().getSavedContent().fetchAll()
+//   ruser.getMe().getSavedContent().fetchMore({ amount: 20 })
+//       .then((data) => {
+//           savedContent = data
+//       })
+//       .then(() => {
+//           res.json({ redditName: username, savedContent: savedContent })
+//       })
+//       .catch((err) => {
+//           res.status(500).json({
+//               error: err,
+//               test: "test" + "nKAvbCUe5ZVaSVAcPPfkkiAsKKs"
+//           })
+//       })
+})
+
+
+app.post('/reddit/getMoreContent', (req, res) => {
+  var moreContent = []
+  var more = true
+
+  console.log(req.body)
+  
+  fetch(`https://oauth.reddit.com/user/${req.body.userName}/saved/.json?limit=25&after=${req.body.after}`, {
+      method: "GET",
+      headers: { 'Authorization': `bearer ${req.body.accessToken}` }
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        data.data.children.map((child) => {
+            moreContent.push(child.data)
+        })
+        if(data.data.after == null){
+            more = false
+        }
+        console.log(`fetching saved content till ${req.body.after}`)
+    })
+    .then(() => {
+        res.json({ moreContent: moreContent, more: more })
+    })
+    .catch((err) => {
+        res.status(500).json({
+            error: err,
+            test: "test" + "nKAvbCUe5ZVaSVAcPPfkkiAsKKs"
+        })
+    })
+
+//   const ruser = new snoowrap({
+//       userAgent: cred.userAgent,
+//       clientId: cred.clientId,
+//       clientSecret: cred.clientSecret,
+//       accessToken: req.body.accessToken
+//   })
+
+//   ruser.getMe().getSavedContent().fetchMore({amount: 20, append: false})
+//       .then((data) => {
+//           moreContent = data
+//       })
+//       .then(() => {
+//           res.json({ moreContent: moreContent })
+//       })
+//       .catch((err) => {
+//           res.status(500).json({
+//               error: err,
+//               test: "test" + "nKAvbCUe5ZVaSVAcPPfkkiAsKKs"
+//           })
+//       })
+
 })
 
 
@@ -106,6 +197,41 @@ app.post('/reddit/unsaveContent', (req, res) => {
             res.status(500).json({ error: err.code, data: req.body })
         })
   }
+
+})
+
+
+app.post('/reddit/getCSV', (req, res) => {
+    var csvData = []
+    console.log("exporting to csv")
+    console.log(req.body)
+
+    const ruser = new snoowrap({
+        userAgent: cred.userAgent,
+        clientId: cred.clientId,
+        clientSecret: cred.clientSecret,
+        accessToken: req.body.accessToken
+    })
+
+    ruser.getMe().getSavedContent().fetchAll()
+    .then((data) => {
+        data.map((save) => {
+            csvData.push({
+                Title: save.title ? save.title : save.link_title,
+                Subreddit: save.subreddit.display_name,
+                Link: "https://reddit.com" + save.permalink,
+            })
+        })
+    })
+    .then(() => {
+        res.json({ csvData: csvData })
+    })
+    .catch((err) => {
+        res.status(500).json({
+            error: err,
+            test: "test" + "nKAvbCUe5ZVaSVAcPPfkkiAsKKs"
+        })
+    })
 
 })
 

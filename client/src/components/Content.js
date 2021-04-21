@@ -33,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
   },
   link: {
     textDecoration: 'none',
-    color: theme.palette.type === 'dark' ? '#e6e6e6' : 'black'
+    color: theme.palette.type === 'dark' ? '#e6e6e6 !important' : 'black !important'
   },
   sub: {
     marginBottom: '0px',
@@ -76,11 +76,11 @@ const Content = ({
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const handleToastVariant = (variant) => () => {
-    // variant could be success, error, warning, info, or default
-    enqueueSnackbar('This is a success message!', { variant });
-    console.log('where is the message??')
-  };
+  // const handleToastVariant = (variant) => () => {
+  //   // variant could be success, error, warning, info, or default
+  //   enqueueSnackbar('This is a success message!', { variant });
+  //   console.log('where is the message??')
+  // };
 
   var userLS = JSON.parse(localStorage.getItem('user'))
 
@@ -107,12 +107,15 @@ const Content = ({
         unsaveLS.list.push(id)
         localStorage.setItem('unsave', JSON.stringify(unsaveLS));
         setUnsave(id)
-        enqueueSnackbar('This is a success message!', { variant: 'success' });
+        enqueueSnackbar('Unsaved successfully!', { variant: 'success' });
       })
-      .catch((error) => { console.log(error) })
+      .catch((error) => { 
+        console.log(error)
+        enqueueSnackbar('Failed to unsave', { variant: 'error' });
+      })
   }
 
-  // for posts having video
+  // for posts having video - preview.images[0].source.url
   if (is_video) {
       if (domain === "v.redd.it") {
           return (
@@ -132,8 +135,8 @@ const Content = ({
                 <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
                   <p className={classes.title}>{title}</p>
                   {
-                    preview
-                    ? <img src={preview.images[0].source.url} width='100%' style={{marginBottom: '10px'}}/>
+                    thumbnail != "self" & thumbnail != "default" & thumbnail != "nsfw" & thumbnail != "spoiler"
+                    ? <img src={thumbnail} width='100%' style={{marginBottom: '10px'}} alt="is_video"/>
                     : null
                   }
                 </a>
@@ -160,7 +163,7 @@ const Content = ({
             </div>
             <a className={classes.link} target="_blank" href={"https://reddit.com" + permalink} rel="noopener noreferrer">
               <p className={classes.title}>{title}</p>
-              <img src={url} width='100%' style={{marginBottom: '10px'}}/>
+              <img src={url} width='100%' style={{marginBottom: '10px'}} alt="post_hint is img"/>
             </a>
           </div>
       )
@@ -184,7 +187,7 @@ const Content = ({
               <p className={classes.title}>{title}</p>
               {
                 preview
-                ? <img src={preview.images[0].source.url} width='100%' style={{marginBottom: '10px'}}/>
+                ? <img src={preview.images[0].source.url} width='100%' style={{marginBottom: '10px'}} alt="post_hint is link and domain imgur"/>
                 : null
               }
             </a>
@@ -225,8 +228,8 @@ const Content = ({
               <p className={classes.title}>{title}</p>
               <p>{url}</p>
               {
-                preview
-                ? <img src={preview.images[0].source.url} width='100%' style={{marginBottom: '10px'}}/>
+                thumbnail != "self" & thumbnail != "default"
+                ? <img src={thumbnail} width='100%' style={{marginBottom: '10px'}} alt="post_hint is link"/>
                 : null
               }
             </a>
@@ -254,8 +257,8 @@ const Content = ({
               <p className={classes.title}>{title}</p>
               <p>{selftext.slice(0,230)}...</p>
               {
-                preview
-                ? <img src={preview.images[0].source.url} width='100%' style={{marginBottom: '10px'}}/>
+                thumbnail != "self" & thumbnail != "default" & thumbnail != "nsfw" & thumbnail != "spoiler" & selftext != "[removed]"
+                ? <img src={thumbnail} width='100%' style={{marginBottom: '10px'}} alt="selftext?"/>
                 : null
               }
             </a>
@@ -270,7 +273,7 @@ const Content = ({
         ? null
         : <div className={classes.card}>
             <div style={{display: 'flex', alignItems: 'center'}}>
-              <p className={classes.sub} onClick={handleToastVariant('success')}>r/{subreddit}</p>
+              <p className={classes.sub}>r/{subreddit}</p>
               <Grid container justify="flex-end">
                 <Tooltip title={<p style={{ fontSize: 14, margin: 4 }}>Unsave</p>} arrow>
                   <IconButton onClick={() => {handleUnsave(id, 'comment')} } className={classes.unsaveStyle}>
