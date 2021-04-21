@@ -21,4 +21,6 @@ using OAuth2 access flow provided by the Reddit API. The reddit API access is on
 
 ## ToDo
 - [X] Unsave option
-- [ ] Export all saved posts in a csv file
+- [X] Pagination
+- [X] Export all saved posts in a csv file
+- [ ] Deploy
