@@ -11,7 +11,7 @@ export default function Login() {
 
   const [more, setMore] = useState(false)
 
-  console.log(process.env)
+  // console.log(process.env)
 
   const oauthLink =
       "https://www.reddit.com/api/v1/authorize?client_id=" +
