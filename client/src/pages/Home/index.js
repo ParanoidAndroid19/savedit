@@ -36,7 +36,7 @@ import Box from "@material-ui/core/Box";
 import ExitToAppIcon from "@material-ui/icons/ExitToApp";
 import axios from "axios";
 import styled from "styled-components";
-import cred from "../../cred.json";
+// import cred from "../../cred.json";
 import Content from "../../components/Content";
 import "./index.css";
 import Masonry from "react-masonry-css";
@@ -214,7 +214,7 @@ export default function HomePage(props) {
   const [morePresent, setMorePresent] = useState(true);
   const [openBackdrop, setBackdrop] = useState(false);
   const [subredditsList, setSubredditsList] = useState([]);
-  var apiurl = cred.apiUrl;
+  var apiurl = process.env.REACT_APP_apiUrl;
 
   var modeL = JSON.parse(localStorage.getItem("mode"));
 

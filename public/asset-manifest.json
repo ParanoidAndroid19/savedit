@@ -1,0 +1,25 @@
+{
+  "files": {
+    "main.css": "/static/css/main.c8e441dc.chunk.css",
+    "main.js": "/static/js/main.988373a9.chunk.js",
+    "main.js.map": "/static/js/main.988373a9.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.7085a3dd.js",
+    "runtime-main.js.map": "/static/js/runtime-main.7085a3dd.js.map",
+    "static/js/2.08ae9aaf.chunk.js": "/static/js/2.08ae9aaf.chunk.js",
+    "static/js/2.08ae9aaf.chunk.js.map": "/static/js/2.08ae9aaf.chunk.js.map",
+    "index.html": "/index.html",
+    "precache-manifest.67c201b1c0945f3ba774c4b9ed7c19df.js": "/precache-manifest.67c201b1c0945f3ba774c4b9ed7c19df.js",
+    "service-worker.js": "/service-worker.js",
+    "static/css/main.c8e441dc.chunk.css.map": "/static/css/main.c8e441dc.chunk.css.map",
+    "static/js/2.08ae9aaf.chunk.js.LICENSE.txt": "/static/js/2.08ae9aaf.chunk.js.LICENSE.txt",
+    "static/media/final.png": "/static/media/final.936647fd.png",
+    "static/media/index.css": "/static/media/landingBG.7afd0028.png",
+    "static/media/waitingMan.gif": "/static/media/waitingMan.b051a9bb.gif"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.7085a3dd.js",
+    "static/js/2.08ae9aaf.chunk.js",
+    "static/css/main.c8e441dc.chunk.css",
+    "static/js/main.988373a9.chunk.js"
+  ]
+}

@@ -8,7 +8,7 @@ import BookmarkIcon from '@material-ui/icons/Bookmark';
 import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
 import Tooltip from '@material-ui/core/Tooltip';
 import { SnackbarProvider, useSnackbar } from 'notistack';
-import cred from '../cred.json'
+// import cred from '../cred.json'
 
 var modeL = JSON.parse(localStorage.getItem('mode'))
 
@@ -71,7 +71,7 @@ const Content = ({
     }
 }) => {
   const classes = useStyles();
-  var apiurl = cred.apiUrl
+  var apiurl = process.env.REACT_APP_apiUrl
   const [unsave, setUnsave] = useState('')
 
   const { enqueueSnackbar } = useSnackbar();

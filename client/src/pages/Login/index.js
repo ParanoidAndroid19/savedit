@@ -3,15 +3,15 @@ import Button from '@material-ui/core/Button'
 import axios from "axios"
 import { useHistory } from 'react-router-dom'
 import queryString from "query-string"
-import cred from '../../cred.json'
+// import cred from '../../cred.json'
 import LoadingScreen from '../LoadingScreen'
 
 export default function Login(props) {
   let history = useHistory();
   const [redditAccessToken, setRedditAccessToken] = useState("")
   const [loginSuccess, setLoginSuccess] = useState("loading")
-  var apiurl = cred.apiUrl
-  var redirecturl = cred.redirectUrl
+  var apiurl = process.env.REACT_APP_apiUrl
+  var redirecturl = process.env.REACT_APP_redirectUrl
 
   const code = queryString.parse(props.location.search).code
   const randomString = queryString.parse(props.location.search).state

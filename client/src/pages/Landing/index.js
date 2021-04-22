@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button, Grid } from '@material-ui/core'
 import GitHubIcon from '@material-ui/icons/GitHub';
 import { useHistory } from 'react-router-dom'
-import cred from '../../cred.json'
+// import cred from '../../cred.json'
 import './index.css';
 
 export default function Login() {
@@ -11,11 +11,13 @@ export default function Login() {
 
   const [more, setMore] = useState(false)
 
+  console.log(process.env)
+
   const oauthLink =
       "https://www.reddit.com/api/v1/authorize?client_id=" +
-      cred.clientId +
+      process.env.REACT_APP_clientId +
       "&response_type=code&state=RANDOM_STRING&redirect_uri=" +
-      cred.redirectUrl +
+      process.env.REACT_APP_redirectUrl +
       "&duration=permanent&scope=identity history save"
 
   if(localStorage.getItem('user')){
