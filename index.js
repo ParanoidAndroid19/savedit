@@ -24,7 +24,7 @@ app.use(
 );
 
 app.post('/reddit/getRedditAccessToken', (req, res) => {
-  console.log(process.env)
+//   console.log(process.env)
   const redirectUrl = process.env.REACT_APP_redirectUrl
   const code = req.body.code
 
