@@ -15,7 +15,8 @@ using OAuth2 access flow provided by the Reddit API. The reddit API access is on
 - All subreddits with saved posts are displayed.
 - Filter saves by only posts, only comments, or only specific subreddit.
 - Search through all the saved content or only through posts/comments.
-- Post thumbnails are displayed (if they are provided by the Reddit API)
+- Export all your saves to excel
+- Post thumbnails are displayed
 - Dark mode
 - Linked to the original post/comment on reddit.
 
