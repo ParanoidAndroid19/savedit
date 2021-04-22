@@ -1,4 +1,4 @@
-<h1 align="center">Savedit for Reddit</h1>
+<h1 align="center"><a href="https://mysaves.app" target="_blank">Savedit</a> for Reddit</h1>
 <h3 align="center">Filter, manage and search through all your reddit saved posts and comments easily</h1>
 <img src="https://user-images.githubusercontent.com/30766392/92479074-b3e0d700-f200-11ea-84f4-e6f8c9622433.png">
 <img src="https://user-images.githubusercontent.com/30766392/92479083-b7745e00-f200-11ea-832e-53d0a764294a.png">
@@ -23,4 +23,4 @@ using OAuth2 access flow provided by the Reddit API. The reddit API access is on
 - [X] Unsave option
 - [X] Pagination
 - [X] Export all saved posts in a csv file
-- [ ] Deploy
+- [X] Deploy
