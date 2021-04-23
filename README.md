@@ -1,7 +1,7 @@
 <h1 align="center"><a href="https://savedit.herokuapp.com/" target="_blank">Savedit</a> for Reddit</h1>
 <h3 align="center">Filter, manage and search through all your reddit saved posts and comments easily</h1>
-<img src="https://user-images.githubusercontent.com/30766392/92479074-b3e0d700-f200-11ea-84f4-e6f8c9622433.png">
-<img src="https://user-images.githubusercontent.com/30766392/92479083-b7745e00-f200-11ea-832e-53d0a764294a.png">
+<img src="https://user-images.githubusercontent.com/30766392/115850066-2b3b4200-a443-11eb-911d-1ff9e31e5853.png">
+<img src="https://user-images.githubusercontent.com/30766392/115850127-3db57b80-a443-11eb-89d1-d64dcbaa617d.png">
 
 ## Overview
 Reddit allows its users to save posts and comments, however does not allow users to search through the saved content or filter based on subreddits, posts or comments. Savedit is a Single Page Application (SPA) built using React.js, Node.js, Material UI and Reddit API.
